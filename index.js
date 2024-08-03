@@ -1,6 +1,7 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
+import mysql2 from "mysql2";
 import { DataTypes, Sequelize } from "sequelize";
 
 dotenv.config();
@@ -15,6 +16,7 @@ const sequelize = new Sequelize(
     host: process.env.DB_HOST,
     port: parseInt(process.env.DB_PORT, 10),
     dialect: "mysql",
+    dialectModule: mysql2,
     logging: false,
   }
 );
