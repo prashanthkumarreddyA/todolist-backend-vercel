@@ -37,22 +37,6 @@ app.get("/test", (req, res) => {
   res.send(`Welcome to Todo`);
 });
 
-// Initialize the database and start the server
-const initializeDbAndServer = async () => {
-  try {
-    await sequelize.authenticate();
-    await sequelize.sync(); // Ensure table creation
-    app.listen(process.env.PORT, () =>
-      console.log(`Server Running at http://localhost:${process.env.PORT}/`)
-    );
-  } catch (error) {
-    console.log(`DB Error: ${error.message}`);
-    process.exit(1);
-  }
-};
-
-initializeDbAndServer();
-
 // Route handlers
 app.get("/todos/", async (request, response) => {
   try {
@@ -127,3 +111,25 @@ app.delete("/todos/:todoId/", async (request, response) => {
     response.status(500).send({ error: error.message });
   }
 });
+
+// Error-handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send({ error: err.message });
+});
+
+// Initialize the database and start the server
+const initializeDbAndServer = async () => {
+  try {
+    await sequelize.authenticate();
+    await sequelize.sync(); // Ensure table creation
+    app.listen(process.env.PORT, () =>
+      console.log(`Server Running at http://localhost:${process.env.PORT}/`)
+    );
+  } catch (error) {
+    console.log(`DB Error: ${error.message}`);
+    process.exit(1);
+  }
+};
+
+initializeDbAndServer();
