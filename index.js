@@ -93,12 +93,15 @@ app.post("/todos/", async (request, response) => {
 app.put("/todos/:todoId/", async (request, response) => {
   try {
     const { todoId } = request.params;
-    const { isChecked } = request.body;
-    if (typeof isChecked !== "boolean") {
-      return response.status(400).send({ error: "Invalid input" });
+    const { todo, isChecked } = request.body;
+    if (todo !== undefined && typeof todo !== "string") {
+      return response.status(400).send({ error: "Invalid todo text" });
+    }
+    if (isChecked !== undefined && typeof isChecked !== "boolean") {
+      return response.status(400).send({ error: "Invalid isChecked value" });
     }
     const [updated] = await Todo.update(
-      { isChecked },
+      { todo, isChecked },
       { where: { id: todoId } }
     );
     if (updated) {
