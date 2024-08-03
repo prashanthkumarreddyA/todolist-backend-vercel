@@ -13,7 +13,7 @@ const sequelize = new Sequelize(
   process.env.DB_PASSWORD,
   {
     host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
+    port: parseInt(process.env.DB_PORT, 10),
     dialect: "mysql",
     logging: false,
   }
@@ -33,16 +33,13 @@ const Todo = sequelize.define("Todo", {
 app.use(express.json());
 app.use(cors());
 
-app.get("/test", (req, res) => {
-  res.send(`Welcome to Todo`);
-});
-
 // Route handlers
 app.get("/todos/", async (request, response) => {
   try {
     const todos = await Todo.findAll();
     response.send({ todos });
   } catch (error) {
+    console.error("Error fetching todos:", error.message);
     response.status(500).send({ error: error.message });
   }
 });
@@ -57,6 +54,7 @@ app.get("/todos/:todoId/", async (request, response) => {
       response.status(404).send({ error: "Todo not found" });
     }
   } catch (error) {
+    console.error("Error fetching todo:", error.message);
     response.status(500).send({ error: error.message });
   }
 });
@@ -70,6 +68,7 @@ app.post("/todos/", async (request, response) => {
     const newTodo = await Todo.create({ todo, isChecked });
     response.status(201).send(newTodo);
   } catch (error) {
+    console.error("Error creating todo:", error.message);
     response.status(500).send({ error: error.message });
   }
 });
@@ -94,6 +93,7 @@ app.put("/todos/:todoId/", async (request, response) => {
       response.status(404).send({ error: "Todo not found" });
     }
   } catch (error) {
+    console.error("Error updating todo:", error.message);
     response.status(500).send({ error: error.message });
   }
 });
@@ -108,13 +108,14 @@ app.delete("/todos/:todoId/", async (request, response) => {
       response.status(404).send({ error: "Todo not found" });
     }
   } catch (error) {
+    console.error("Error deleting todo:", error.message);
     response.status(500).send({ error: error.message });
   }
 });
 
 // Error-handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  console.error("Server error:", err.stack);
   res.status(500).send({ error: err.message });
 });
 
@@ -127,9 +128,11 @@ const initializeDbAndServer = async () => {
       console.log(`Server Running at http://localhost:${process.env.PORT}/`)
     );
   } catch (error) {
-    console.log(`DB Error: ${error.message}`);
+    console.error("DB Error:", error.message);
     process.exit(1);
   }
 };
 
 initializeDbAndServer();
+
+export default app;
